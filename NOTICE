@@ -1,0 +1,35 @@
+suiplay0x1-unlock (AI agent playbook)
+Copyright 2026 Prajeet Shrestha
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this work except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+================================================================================
+This product includes software and workflow documentation derived from:
+
+gameos-unlock (https://github.com/LukeShortCloud/gameos-unlock)
+Copyright Luke Short (VP of Linux Engineering, Playtron)
+Licensed under the Apache License, Version 2.0.
+
+The container build sequence, install-flatpak.sh wrapper, install-desktop-mode.sh
+template, and bootc switch flow originate from gameos-unlock. This playbook packages
+that workflow as a guided walkthrough for AI coding agents (Claude Code, Codex,
+Cursor, Aider, GitHub Copilot, Antigravity, etc.) — it does not modify or
+redistribute the gameos-unlock code itself. Users are instructed to clone and run
+gameos-unlock directly from its upstream repository.
+
+================================================================================
+Playtron GameOS — built by the Playtron team:
+
+  - Alesh Slovak (https://github.com/alkazar)
+  - William Edwards (https://github.com/ShadowApex)
+  - Mathieu Comandon (https://github.com/strycore)
+  - Paweł Lidwin (https://github.com/imLinguin)
+  - ptitSeb (https://github.com/ptitSeb)
+  - Brian Budge (https://github.com/codename-irvin)
+
+GameOS is the underlying immutable-image OS this skill walks users through
+unlocking. Source: https://github.com/playtron-os/gameos

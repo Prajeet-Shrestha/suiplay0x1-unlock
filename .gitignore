@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Editor / IDE artifacts
+.vscode/
+.idea/
+.qodo/
+
+# Local-only test installs
+.claude/
+node_modules/
