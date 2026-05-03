@@ -2,7 +2,7 @@
 
 **Goal:** Turn the SuiPlay0x1 handheld (running Playtron GameOS) into a full Linux device with a KDE Plasma desktop, the ability to install any Flatpak app from Flathub, and a working dual-mode setup that lets you switch between the GameOS launcher and a real desktop.
 
-**Approach used:** Method A — the [`gameos-unlock`](https://github.com/LukeShortCloud/gameos-unlock) script by Luke Short (VP of Linux Engineering at Playtron). This is the maintained, repeatable path; an alternative manual approach (Method B) exists but trades convenience for control.
+**Approach used:** Method A: the [`gameos-unlock`](https://github.com/LukeShortCloud/gameos-unlock) script by Luke Short (VP of Linux Engineering at Playtron). This is the maintained, repeatable path; an alternative manual approach (Method B) exists but trades convenience for control.
 
 **Time required:** ~60–90 minutes start to finish, mostly waiting for the container build.
 
@@ -18,7 +18,7 @@
 
 Before running commands, it helps to understand the architecture you're modifying.
 
-Playtron GameOS is a **bootc-based Linux distro**. That means the entire OS runs from a container image — the system reads a tagged image from `containers-storage` at boot. Updates aren't applied package-by-package; they swap in a whole new image and reboot. There are two image slots (current + rollback), so a bad image can be reverted by holding power and booting the previous slot.
+Playtron GameOS is a **bootc-based Linux distro**. That means the entire OS runs from a container image: the system reads a tagged image from `containers-storage` at boot. Updates aren't applied package-by-package; they swap in a whole new image and reboot. There are two image slots (current + rollback), so a bad image can be reverted by holding power and booting the previous slot.
 
 What "unlocking" actually means in this context:
 1. **Get SSH key access** so your laptop can run commands on the device.
@@ -77,8 +77,8 @@ ssh-keygen
 
 Accept all defaults (path: `~/.ssh/id_ed25519`). For the passphrase, you have a real choice:
 
-- **Empty passphrase** — convenient, fine for a personal laptop talking to a LAN-only handheld. The risk is theoretical: an attacker who already has access to your unlocked laptop could copy the key. If your laptop is compromised, that's your problem before SSH keys are.
-- **A real passphrase** — slightly more secure, but you'll be prompted on every SSH call unless you load it into `ssh-agent` (`ssh-add --apple-use-keychain ~/.ssh/id_ed25519` on macOS).
+- **Empty passphrase**: convenient, fine for a personal laptop talking to a LAN-only handheld. The risk is theoretical: an attacker who already has access to your unlocked laptop could copy the key. If your laptop is compromised, that's your problem before SSH keys are.
+- **A real passphrase**: slightly more secure, but you'll be prompted on every SSH call unless you load it into `ssh-agent` (`ssh-add --apple-use-keychain ~/.ssh/id_ed25519` on macOS).
 
 > ⚠️ If you already have a key at `~/.ssh/id_ed25519`, ssh-keygen will offer to overwrite it. **Saying yes destroys the old key permanently.** Anything that authorized that old public key (GitHub, AWS, etc.) will need re-authorization with the new one. Either pick a different filename or accept the consequence consciously.
 
@@ -176,23 +176,23 @@ ssh playtron@$GAMEOS_IP_ADDRESS rm -f /home/playtron/install-desktop-mode.sh
 ```
 
 What each line does:
-- `scp Containerfile` — sends the build instructions to the device
-- `bootc image copy-to-storage` — copies the running image into podman's storage so the new image can layer on it
-- `podman build` — builds your custom image (~25–40 min on first run; pulls 836 MiB of packages, installs ~675, runs scriptlets)
-- `bootc switch` — tells the system to boot this image next time
-- `scp install-desktop-mode.sh` + run it — wires up the "Desktop Mode" launcher icon in GameOS
+- `scp Containerfile`: sends the build instructions to the device
+- `bootc image copy-to-storage`: copies the running image into podman's storage so the new image can layer on it
+- `podman build`: builds your custom image (~25–40 min on first run; pulls 836 MiB of packages, installs ~675, runs scriptlets)
+- `bootc switch`: tells the system to boot this image next time
+- `scp install-desktop-mode.sh` + run it: wires up the "Desktop Mode" launcher icon in GameOS
 
 ### 4.4 What you'll see
 
 Expect output like:
 - `Copying local image docker://ghcr.io/playtron-os/playtron-os:latest to containers-storage:localhost/bootc ...`
 - `[1/675] Installing kde-frameworks-...` (counters running up to ~716 with installs/upgrades/removes)
-- `Lint warning: ...` near the end — cosmetic; checks passed = 10
+- `Lint warning: ...` near the end (cosmetic; checks passed = 10
 - `Successfully tagged localhost/desktop:<timestamp>`
 - `Queued for next boot: ostree-unverified-image:containers-storage:localhost/desktop:...`
 - Eventually your laptop shell prompt returns
 
-If the build fails partway, your device is still safe — bootc only commits the new image after `bootc switch` succeeds. Re-run the chain.
+If the build fails partway, your device is still safe; bootc only commits the new image after `bootc switch` succeeds. Re-run the chain.
 
 ### 4.5 Reboot
 
@@ -200,7 +200,7 @@ If the build fails partway, your device is still safe — bootc only commits the
 ssh playtron@$GAMEOS_IP_ADDRESS "sync && sudo reboot"
 ```
 
-The SSH connection dies (this is normal — `sudo reboot` kills the session). The device takes 2–5 minutes to come back up; the first boot on the new image is slower than subsequent ones.
+The SSH connection dies (this is normal; `sudo reboot` kills the session). The device takes 2–5 minutes to come back up; the first boot on the new image is slower than subsequent ones.
 
 ---
 
@@ -210,17 +210,17 @@ When the device comes back up, it should auto-login to KDE Plasma. You'll see:
 
 - The Plasma desktop with a panel
 - A **Game Mode** shortcut on the desktop (use this to switch back to GameOS)
-- A "Welcome to Fedora Linux" dialog (Fedora's first-launch wizard — close or skip through it)
+- A "Welcome to Fedora Linux" dialog (Fedora's first-launch wizard, close or skip through it)
 
 A new **Desktop Mode** icon will also appear in the GameOS home screen the next time you switch to GameMode.
 
 ### 5.1 The first input gotcha
 
-On first boot into KDE you may find that **touch doesn't respond, even though the joystick and buttons work**. This isn't broken hardware — it's an InputPlumber initialization race.
+On first boot into KDE you may find that **touch doesn't respond, even though the joystick and buttons work**. This isn't broken hardware. It's an InputPlumber initialization race.
 
 #### What's happening
 
-InputPlumber is Playtron's input-translation daemon. It grabs the real Goodix touchscreen at the kernel level (`event5`) and re-emits a virtual touchscreen device for compositors to consume. KDE Wayland reads from these virtual devices, **not the raw hardware** — which is why naively stopping the service kills *all* input, including the joystick.
+InputPlumber is Playtron's input-translation daemon. It grabs the real Goodix touchscreen at the kernel level (`event5`) and re-emits a virtual touchscreen device for compositors to consume. KDE Wayland reads from these virtual devices, **not the raw hardware**, which is why naively stopping the service kills *all* input, including the joystick.
 
 When KDE starts up, KWin sometimes binds to a stale or partially-initialized virtual touchscreen handle. Touches don't register until the handle is refreshed.
 
@@ -266,7 +266,7 @@ Now every time you enter Desktop Mode, KDE auto-runs the script and input is rea
 
 ### 5.2 The second input gotcha: GameMode touch
 
-After the unlock, **touch may not work in GameMode** (the Playtron launcher), only in KDE. This is most likely by design — many handheld game launchers expect controller-only input. Joystick and buttons still work in GameMode, so navigation isn't broken; you just can't tap. We didn't fix this because it might not actually be a regression.
+After the unlock, **touch may not work in GameMode** (the Playtron launcher), only in KDE. This is most likely by design; many handheld game launchers expect controller-only input. Joystick and buttons still work in GameMode, so navigation isn't broken; you just can't tap. We didn't fix this because it might not actually be a regression.
 
 ---
 
@@ -281,9 +281,9 @@ ssh playtron@$GAMEOS_IP_ADDRESS "curl https://raw.githubusercontent.com/LukeShor
 ```
 
 Three values to replace:
-- **`<NAME>`** — display name shown in GameOS (e.g. `"Chrome"`)
-- **`<PACKAGE_ID>`** — Flathub app ID, reverse-DNS format (e.g. `"com.google.Chrome"`)
-- **`<IMAGE_URL>`** — URL to a JPG/PNG/WebP used as the launcher's tile artwork
+- **`<NAME>`**: display name shown in GameOS (e.g. `"Chrome"`)
+- **`<PACKAGE_ID>`**. Flathub app ID, reverse-DNS format (e.g. `"com.google.Chrome"`)
+- **`<IMAGE_URL>`**. URL to a JPG/PNG/WebP used as the launcher's tile artwork
 
 Find package IDs at https://flathub.org/.
 
@@ -317,7 +317,7 @@ Same template, different package IDs and artwork URLs:
 | Discord | `com.discordapp.Discord` | Voice/text chat |
 | Steam | `com.valvesoftware.Steam` | Comes with Proton for Windows games |
 
-> ⚠️ Switch emulation (Yuzu, Ryujinx) was shut down by Nintendo. Forks exist (Suyu, Sudachi) but aren't on Flathub — skip unless you're prepared to manage AppImages manually.
+> ⚠️ Switch emulation (Yuzu, Ryujinx) was shut down by Nintendo. Forks exist (Suyu, Sudachi) but aren't on Flathub, so skip unless you're prepared to manage AppImages manually.
 
 ---
 
@@ -348,7 +348,7 @@ ssh playtron@$GAMEOS_IP_ADDRESS "sync && sudo reboot"
 
 ### Rebuild after a Playtron base update
 
-Re-run the same Part 4.3 chain — just `git pull` first to get any updates to the Containerfile, then redo the build/switch/reboot sequence. Your customizations (Chrome, autostart fix) are preserved across rebuilds since they live in `playtron`'s home directory, not in the bootc image.
+Re-run the same Part 4.3 chain, but `git pull` first to get any updates to the Containerfile, then redo the build/switch/reboot sequence. Your customizations (Chrome, autostart fix) are preserved across rebuilds since they live in `playtron`'s home directory, not in the bootc image.
 
 ### Uninstall everything (return to stock)
 
@@ -365,13 +365,13 @@ This reverts bootc to the stock image and restores Playtron's auto-update flow.
 
 ## Part 8: Troubleshooting reference
 
-A summary of every problem we hit during the actual install, in the order we hit them. Bookmark this — you'll likely see at least one of these.
+A summary of every problem we hit during the actual install, in the order we hit them. Bookmark this. you'll likely see at least one of these.
 
 ### "Permission denied" when running `ssh-copy-id`
 You don't know the playtron user's password. It was set during initial device onboarding. If you don't remember it, set it from the device itself with `sudo passwd playtron` (you'll need a terminal app on the device, e.g., Konsole if you have one, or a USB keyboard at a TTY).
 
 ### `tutorial.md`'s build command fails
-The version in `tutorial.md` (the marketing/onboarding doc) runs `podman build .` over SSH where `.` is the device's home — and there's no Containerfile there. Use Part 4.3 in this walkthrough, which mirrors the actual `gameos-unlock` README.
+The version in `tutorial.md` (the marketing/onboarding doc) runs `podman build .` over SSH where `.` is the device's home. and there's no Containerfile there. Use Part 4.3 in this walkthrough, which mirrors the actual `gameos-unlock` README.
 
 ### Touch doesn't work in KDE on first boot
 InputPlumber initialization race. Run `sudo systemctl restart inputplumber` from your laptop. For a permanent fix, install the KDE autostart script (Part 5.1).
@@ -387,7 +387,7 @@ The Playtron launcher caches its app list. Force a refresh:
 ```bash
 ssh playtron@$GAMEOS_IP_ADDRESS systemctl --user restart playserve
 ```
-Or just enter Game Mode and back to Desktop Mode — the launcher rebuilds on entry.
+Or just enter Game Mode and back to Desktop Mode. the launcher rebuilds on entry.
 
 ### Build fails partway
 Re-run the Part 4.3 chain. `bootc switch` only commits a new image after a successful build, so a failed build leaves your existing system intact.
@@ -406,10 +406,10 @@ Or remove the passphrase entirely with `ssh-keygen -p -f ~/.ssh/id_ed25519` (use
 
 ## Part 9: Acknowledgements & references
 
-- **`gameos-unlock` script** — Luke Short ([@LukeShortCloud](https://github.com/LukeShortCloud)), VP of Linux Engineering at Playtron. The script and its README are the source of truth; this walkthrough is an annotated tour of running it cleanly on a SuiPlay0x1.
-- **Playtron GameOS** — built by the Playtron team: Alesh Slovak, William Edwards, Mathieu Comandon, Paweł Lidwin, ptitSeb, Brian Budge.
-- **bootc** — the immutable-image OS framework that makes this whole approach possible.
-- **InputPlumber** — Playtron's input-translation daemon; its profiles live at `/usr/share/inputplumber/profiles/` and device configs at `/usr/share/inputplumber/devices/`.
+- **`gameos-unlock` script**. Luke Short ([@LukeShortCloud](https://github.com/LukeShortCloud)), VP of Linux Engineering at Playtron. The script and its README are the source of truth; this walkthrough is an annotated tour of running it cleanly on a SuiPlay0x1.
+- **Playtron GameOS**. built by the Playtron team: Alesh Slovak, William Edwards, Mathieu Comandon, Paweł Lidwin, ptitSeb, Brian Budge.
+- **bootc**. the immutable-image OS framework that makes this whole approach possible.
+- **InputPlumber**. Playtron's input-translation daemon; its profiles live at `/usr/share/inputplumber/profiles/` and device configs at `/usr/share/inputplumber/devices/`.
 
 ---
 
@@ -447,7 +447,7 @@ ssh playtron@$GAMEOS_IP_ADDRESS /bin/bash /home/playtron/install-desktop-mode.sh
 ssh playtron@$GAMEOS_IP_ADDRESS rm -f /home/playtron/install-desktop-mode.sh
 ssh playtron@$GAMEOS_IP_ADDRESS "sync && sudo reboot"
 
-# 5. After reboot — install input fix
+# 5. After reboot: install input fix
 ./scripts/install-fix-inputplumber.sh   # from this repo
 ```
 

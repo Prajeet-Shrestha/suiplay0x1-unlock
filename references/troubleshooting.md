@@ -1,6 +1,6 @@
-# Troubleshooting — SuiPlay0x1 Unlock
+# Troubleshooting: SuiPlay0x1 Unlock
 
-Every issue we've seen during the unlock and after, with cause + fix. Bookmark this — most installs hit at least one of these.
+Every issue we've seen during the unlock and after, with cause + fix. Bookmark this; most installs hit at least one of these.
 
 ---
 
@@ -26,7 +26,7 @@ This drops [`scripts/fix-inputplumber.sh`](../scripts/fix-inputplumber.sh) into 
 
 ### All input dies (touch + joystick) after stopping InputPlumber
 
-**Cause:** Someone ran `systemctl stop inputplumber` instead of `restart`. KDE has nothing to read from once InputPlumber is stopped — it doesn't read raw hardware.
+**Cause:** Someone ran `systemctl stop inputplumber` instead of `restart`. KDE has nothing to read from once InputPlumber is stopped, since it doesn't read raw hardware.
 
 **Fix:**
 ```bash
@@ -37,13 +37,13 @@ ssh playtron@$GAMEOS_IP_ADDRESS sudo systemctl start inputplumber
 
 ### Touch doesn't work in GameMode (Playtron launcher)
 
-**Cause:** Likely by design. Many handheld game launchers expect controller-only input. Joystick + buttons still work in GameMode, so navigation isn't broken — you just can't tap on launcher tiles.
+**Cause:** Likely by design. Many handheld game launchers expect controller-only input. Joystick + buttons still work in GameMode, so navigation isn't broken, you just can't tap on launcher tiles.
 
 **Fix:** None needed if working as designed. If you want to investigate, start by checking whether stock Playtron GameOS *ever* supported touch in the launcher (Playtron docs / Discord / [@PLAYTR0N](https://x.com/PLAYTR0N) on X). If it did, compare current InputPlumber state vs. expected. If it didn't, this isn't a regression introduced by `gameos-unlock`.
 
 ### "Welcome to Fedora Linux" dialog feels stuck on first boot
 
-**Cause:** Touch isn't initialized yet (see above). The dialog isn't stuck — input just isn't responding.
+**Cause:** Touch isn't initialized yet (see above). The dialog isn't stuck. Input just isn't responding.
 
 **Fix:** Use the joystick to dismiss it (right stick = mouse, A button = click), then run the InputPlumber restart.
 
@@ -96,7 +96,7 @@ ssh-keygen -p -f ~/.ssh/id_ed25519
 
 ### `tutorial.md` build command fails immediately
 
-**Cause:** The Playtron-bundled `tutorial.md` runs `podman build .` over SSH, where `.` resolves to the device's home directory — and there's no Containerfile there.
+**Cause:** The Playtron-bundled `tutorial.md` runs `podman build .` over SSH, where `.` resolves to the device's home directory, and there's no Containerfile there.
 
 **Fix:** Use the [walkthrough.md](walkthrough.md) §4.3 sequence instead, which mirrors the actual `gameos-unlock` README. The fix is to `scp` the Containerfile to the device first and use the explicit path: `podman build /home/playtron/`.
 
@@ -110,7 +110,7 @@ ssh-keygen -p -f ~/.ssh/id_ed25519
 
 **Cause:** A bad image. Bootc is supposed to auto-roll-back on a fully failed boot.
 
-**Fix:** Hold the power button for 10 seconds to force off, then power on — should boot the previous slot. Then SSH in and run:
+**Fix:** Hold the power button for 10 seconds to force off, then power on. It should boot the previous slot. Then SSH in and run:
 ```bash
 ssh playtron@$GAMEOS_IP_ADDRESS sudo bootc rollback
 ssh playtron@$GAMEOS_IP_ADDRESS "sync && sudo reboot"
@@ -130,7 +130,7 @@ Make the rollback permanent.
 ssh playtron@$GAMEOS_IP_ADDRESS systemctl --user restart playserve
 ```
 
-Or just enter Game Mode and back to Desktop Mode — the launcher rebuilds on entry.
+Or just enter Game Mode and back to Desktop Mode, and the launcher rebuilds on entry.
 
 ### Flatpak install fails with "remote 'flathub' not found"
 
@@ -147,7 +147,7 @@ Then re-run the install.
 
 **Cause:** Manifest written but Playserve hasn't picked it up.
 
-**Fix:** Same as above — `systemctl --user restart playserve` on the device.
+**Fix:** Same as above. `systemctl --user restart playserve` on the device.
 
 ---
 

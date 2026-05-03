@@ -17,12 +17,12 @@ Licensed under the Apache License, Version 2.0.
 The container build sequence, install-flatpak.sh wrapper, install-desktop-mode.sh
 template, and bootc switch flow originate from gameos-unlock. This playbook packages
 that workflow as a guided walkthrough for AI coding agents (Claude Code, Codex,
-Cursor, Aider, GitHub Copilot, Antigravity, etc.) — it does not modify or
+Cursor, Aider, GitHub Copilot, Antigravity, etc.). It does not modify or
 redistribute the gameos-unlock code itself. Users are instructed to clone and run
 gameos-unlock directly from its upstream repository.
 
 ================================================================================
-Playtron GameOS — built by the Playtron team:
+Playtron GameOS, built by the Playtron team:
 
   - Alesh Slovak (https://github.com/alkazar)
   - William Edwards (https://github.com/ShadowApex)

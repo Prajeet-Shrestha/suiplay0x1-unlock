@@ -1,4 +1,4 @@
-# SuiPlay0x1 — Common Commands
+# SuiPlay0x1: Common Commands
 
 Quick reference for managing the device after Method A unlock. All commands run from your **Mac terminal** unless noted.
 
@@ -8,7 +8,7 @@ Quick reference for managing the device after Method A unlock. All commands run 
 export GAMEOS_IP_ADDRESS=192.168.x.x
 ```
 
-> Device IP is DHCP — verify in **Settings → Network** on the device if it changes.
+> Device IP is DHCP, verify in **Settings → Network** on the device if it changes.
 
 ---
 
@@ -92,7 +92,7 @@ ssh playtron@$GAMEOS_IP_ADDRESS systemctl --user restart playserve
 
 ## Install a Flatpak app
 
-Template — replace `<NAME>`, `<PACKAGE_ID>`, `<IMAGE_URL>`:
+Template, replace `<NAME>`, `<PACKAGE_ID>`, `<IMAGE_URL>`:
 ```bash
 ssh playtron@$GAMEOS_IP_ADDRESS "curl https://raw.githubusercontent.com/LukeShortCloud/gameos-unlock/refs/heads/main/plugin-local/install-flatpak.sh | bash -s -- \"<NAME>\" \"<PACKAGE_ID>\" \"<IMAGE_URL>\""
 ```
@@ -169,7 +169,7 @@ ssh playtron@$GAMEOS_IP_ADDRESS rm -f /home/playtron/install-desktop-mode.sh
 ssh playtron@$GAMEOS_IP_ADDRESS "sync && sudo reboot"
 ```
 
-> ⚠️ Keep the device plugged in — full rebuild takes 30–60 min and will fail if SSH disconnects.
+> ⚠️ Keep the device plugged in: full rebuild takes 30–60 min and will fail if SSH disconnects.
 
 ### Rollback to previous image (if a rebuild breaks things)
 ```bash
