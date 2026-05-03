@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Fix InputPlumber
+Exec=/bin/bash /home/playtron/.config/autostart-scripts/fix-inputplumber.sh
+X-KDE-AutostartScript=true
+OnlyShowIn=KDE;
